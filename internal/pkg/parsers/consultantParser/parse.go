@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gocolly/colly"
-	store2 "hack/internal/app/pkg/store"
+	store2 "hack/internal/pkg/store"
 	"strconv"
 )
 
@@ -35,8 +35,9 @@ func (p *Parser) Parse(ctx context.Context) {
 	fmt.Println("hi")
 	for page := 0; page < 940; page++ {
 		c := colly.NewCollector()
-		c.OnHTML("div[class='listing-news__item']", func(e *colly.HTMLElement) {
-			e.ForEach("a.card-full-news", func(_ int, el *colly.HTMLElement) {
+		c.OnHTML(".listing-news__list", func(e *colly.HTMLElement) {
+			e.ForEach("div[data-published-at]", func(_ int, el *colly.HTMLElement) {
+				fmt.Println(1, e)
 				p.postNews(ctx, el.ChildText("div[class='listing-news__item-date']"), el.ChildText("span"), el.ChildAttr("a", "href"))
 			})
 		})

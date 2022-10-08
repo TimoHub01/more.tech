@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gocolly/colly"
-	store2 "hack/internal/app/pkg/store"
+	store2 "hack/internal/pkg/store"
 	"time"
 )
 

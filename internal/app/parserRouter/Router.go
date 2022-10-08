@@ -1,4 +1,4 @@
-package parsers
+package parserRouter
 
 import (
 	"context"
@@ -18,15 +18,14 @@ func NewRouter(p ...Parser) *Router {
 	return &Router{ginContext: gin.Default(), parser: p}
 }
 
-func (r *Router) SetUpRouter() {
-	r.ginContext.POST("/parse", r.parseNews)
+func (r *Router) SetUpRouter(engine *gin.Engine) {
+	engine.POST("/parse", r.parseNews)
 }
 
 func (r *Router) parseNews(c *gin.Context) {
-	r.parser[1].Parse(c)
-	/*for _, p := range r.parser {
+	for _, p := range r.parser {
 		p.Parse(c)
-	}*/
+	}
 }
 
 func (r *Router) Run() {

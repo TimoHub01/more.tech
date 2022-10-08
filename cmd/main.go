@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"hack/internal/app/pkg/parsers"
-	"hack/internal/app/pkg/parsers/consultantParser"
-	"hack/internal/app/pkg/parsers/lentaParser"
-	store2 "hack/internal/app/pkg/store"
+	"hack/internal/app"
+	"hack/internal/app/clientRouter"
+	"hack/internal/app/parserRouter"
+	"hack/internal/pkg/parsers/consultantParser"
+	"hack/internal/pkg/parsers/lentaParser"
+	store2 "hack/internal/pkg/store"
 	"os"
 )
 
@@ -21,7 +23,8 @@ func main() {
 	store := store2.NewPostgresStore(dbPool)
 	lParser := lentaParser.NewParser(store)
 	cParser := consultantParser.NewParser(store)
-	router := parsers.NewRouter(lParser, cParser)
-	router.SetUpRouter()
+	Prouter := parserRouter.NewRouter(lParser, cParser)
+	CRouter := clientRouter.NewRouter(store)
+	router := app.NewRouter(Prouter, CRouter)
 	router.Run()
 }
