@@ -1,11 +1,11 @@
-package consultantParser
+package newslab
 
 import (
 	"context"
 	"fmt"
 	"github.com/gocolly/colly"
 	store2 "hack/internal/pkg/store"
-	"strconv"
+	"time"
 )
 
 type store interface {
@@ -20,9 +20,10 @@ func NewParser(s store) *Parser {
 	return &Parser{store: s}
 }
 
-func (p *Parser) postNews(ctx context.Context, date, topic, link string) {
-	link = "https://www.consultant.ru" + link
-	text := textFromNew(link)
+func (p *Parser) postNews(ctx context.Context, link, topic, date string) {
+	link = "https://newslab.ru" + link
+
+	text := textOfNew(link)
 	_, err := p.store.CreateNew(ctx, topic, date, link, text)
 	if err != nil {
 		fmt.Println(err)
@@ -30,24 +31,26 @@ func (p *Parser) postNews(ctx context.Context, date, topic, link string) {
 }
 
 func (p *Parser) Parse(ctx context.Context) {
-	for page := 0; page < 10; page++ {
+	currentTime := time.Date(2022, 10, 7, 10, 10, 10, 10, time.Local)
+	for currentTime.Before(time.Now()) {
 		c := colly.NewCollector()
-		c.OnHTML(".listing-news__list", func(e *colly.HTMLElement) {
-			e.ForEach(".listing-news__item", func(_ int, el *colly.HTMLElement) {
-				p.postNews(ctx, el.ChildText("div[class='listing-news__item-date']"), el.ChildText("span"), el.ChildAttr("a", "href"))
+		c.OnHTML(".n-default__content-wrapper", func(e *colly.HTMLElement) {
+			e.ForEach("li", func(_ int, el *colly.HTMLElement) {
+				p.postNews(ctx, el.ChildAttr("a.n-list__item__link", "href"), el.ChildText("a.n-list__item__link"), currentTime.Format("2006-1-2"))
 			})
 		})
-		err := c.Visit("https://www.consultant.ru/legalnews/?page=" + strconv.Itoa(page))
+		err := c.Visit("https://newslab.ru/news/archive/" + currentTime.Format("2006/1/2"))
 		if err != nil {
 			fmt.Println(err)
 		}
+		currentTime = currentTime.AddDate(0, 0, 1)
 	}
 }
 
-func textFromNew(href string) string {
+func textOfNew(href string) string {
 	c := colly.NewCollector()
 	text := ""
-	c.OnHTML("div[class='news-page__content']", func(e *colly.HTMLElement) {
+	c.OnHTML(".di3-body__text_news", func(e *colly.HTMLElement) {
 		e.ForEach("p", func(_ int, el *colly.HTMLElement) {
 			text += " " + el.Text + el.ChildText("a")
 		})

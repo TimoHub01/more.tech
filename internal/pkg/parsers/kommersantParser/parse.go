@@ -1,4 +1,4 @@
-package lentaParser
+package kommersantParser
 
 import (
 	"context"
@@ -21,7 +21,7 @@ func NewParser(s store) *Parser {
 }
 
 func (p *Parser) postNews(ctx context.Context, link, topic, date string) {
-	link = "https://lenta.ru/" + link
+	link = "https://www.kommersant.ru" + link
 
 	text := textOfNew(link)
 	_, err := p.store.CreateNew(ctx, topic, date, link, text)
@@ -31,15 +31,16 @@ func (p *Parser) postNews(ctx context.Context, link, topic, date string) {
 }
 
 func (p *Parser) Parse(ctx context.Context) {
+	fmt.Println("1")
 	currentTime := time.Date(2022, 10, 7, 10, 10, 10, 10, time.Local)
 	for currentTime.Before(time.Now()) {
 		c := colly.NewCollector()
-		c.OnHTML("ul[class='archive-page__container']", func(e *colly.HTMLElement) {
-			e.ForEach("a.card-full-news", func(_ int, el *colly.HTMLElement) {
-				p.postNews(ctx, el.Attr("href"), el.ChildText("h3"), currentTime.Format("2006-01-02"))
+		c.OnHTML("div.grid-col", func(e *colly.HTMLElement) {
+			e.ForEach(".js-article", func(_ int, el *colly.HTMLElement) {
+				p.postNews(ctx, el.ChildAttr("a", "href"), el.ChildText("a"), currentTime.Format("2006-01-02"))
 			})
 		})
-		err := c.Visit("https://lenta.ru/news/" + currentTime.Format("2006/01/02"))
+		err := c.Visit("https://www.kommersant.ru/archive/news/day/" + currentTime.Format("2006-01-02"))
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -50,8 +51,8 @@ func (p *Parser) Parse(ctx context.Context) {
 func textOfNew(href string) string {
 	c := colly.NewCollector()
 	text := ""
-	c.OnHTML(".topic-body__content", func(e *colly.HTMLElement) {
-		e.ForEach(".topic-body__content-text", func(_ int, el *colly.HTMLElement) {
+	c.OnHTML(".doc__body", func(e *colly.HTMLElement) {
+		e.ForEach(".doc__text", func(_ int, el *colly.HTMLElement) {
 			text += " " + el.Text + el.ChildText("a")
 		})
 	})

@@ -8,7 +8,9 @@ import (
 	"hack/internal/app/clientRouter"
 	"hack/internal/app/parserRouter"
 	"hack/internal/pkg/parsers/consultantParser"
+	"hack/internal/pkg/parsers/kommersantParser"
 	"hack/internal/pkg/parsers/lentaParser"
+	"hack/internal/pkg/parsers/newslab"
 	store2 "hack/internal/pkg/store"
 	"os"
 )
@@ -23,9 +25,12 @@ func main() {
 	store := store2.NewPostgresStore(dbPool)
 	lParser := lentaParser.NewParser(store)
 	cParser := consultantParser.NewParser(store)
-	Prouter := parserRouter.NewRouter(lParser, cParser)
-	CRouter := clientRouter.NewRouter(store)
-	router := app.NewRouter(Prouter, CRouter)
+	KParser := kommersantParser.NewParser(store)
+	NParser := newslab.NewParser(store)
+	ParseRouter := parserRouter.NewRouter(NParser, lParser, cParser, KParser)
+
+	CPRouter := clientRouter.NewRouter(store)
+	router := app.NewRouter(ParseRouter, CPRouter)
 	router.SetUpRouter()
 	router.Run()
 }
