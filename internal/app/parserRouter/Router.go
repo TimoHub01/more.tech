@@ -27,7 +27,7 @@ func (r *Router) SetUpRouter(engine *gin.Engine) {
 func (r *Router) parseNews(c *gin.Context) {
 	go r.RunUpdateService(c)
 	for _, p := range r.parser {
-		p.Parse(c, 365)
+		p.Parse(c, 1)
 	}
 }
 

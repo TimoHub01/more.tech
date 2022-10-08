@@ -2,8 +2,10 @@ package clientRouter
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	Nstore "hack/internal/pkg/store"
+	"net/http"
 )
 
 type store interface {
@@ -24,7 +26,12 @@ func (r *Router) SetUpRouter(engine *gin.Engine) {
 }
 
 func (r *Router) GetNews(c *gin.Context) {
-	r.store.GetNews(c)
+	news, err := r.store.GetNews(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(news)
+	c.IndentedJSON(http.StatusOK, news)
 }
 
 func (r *Router) Run() {

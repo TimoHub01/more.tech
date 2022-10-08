@@ -17,7 +17,7 @@ func NewPostgresStore(pool *pgxpool.Pool) *postgresStore {
 
 func scanNew(row pgx.Row) (New, error) {
 	var n New
-	err := row.Scan(&n.ID, &n.topic, &n.text, &n.date, &n.link)
+	err := row.Scan(&n.ID, &n.Topic, &n.Text, &n.Date, &n.Link)
 	if err != nil {
 		return New{}, err
 	}
@@ -27,7 +27,7 @@ func scanNews(rows pgx.Rows) ([]New, error) {
 	var news []New
 	var n New
 	for rows.Next() {
-		err := rows.Scan(&n.ID, &n.topic, &n.text, &n.date, &n.link)
+		err := rows.Scan(&n.ID, &n.Link, &n.Topic, &n.Text, &n.Date)
 		news = append(news, n)
 		if err != nil {
 			return []New{}, fmt.Errorf("failed to select users from db %w", err)
@@ -37,7 +37,7 @@ func scanNews(rows pgx.Rows) ([]New, error) {
 }
 
 func (s *postgresStore) CreateNew(ctx context.Context, topic, date, link, text string) (New, error) {
-	sql := "INSERT INTO news (link,topic,text,date) VALUES ($1,$2,$3,$4) RETURNING id"
+	sql := "INSERT INTO news (Link,Topic,Text,Date) VALUES ($1,$2,$3,$4) RETURNING id"
 	params := []interface{}{
 		link,  // 1
 		topic, // 2
@@ -52,15 +52,15 @@ func (s *postgresStore) CreateNew(ctx context.Context, topic, date, link, text s
 	}
 	return New{
 		ID:    id,
-		topic: topic,
-		text:  text,
-		date:  date,
-		link:  link,
+		Topic: topic,
+		Text:  text,
+		Date:  date,
+		Link:  link,
 	}, nil
 }
 
 func (s *postgresStore) GetNews(ctx context.Context) ([]New, error) {
-	sql := "SELECT TOP 3 * FROM news order by relevant_score;"
+	sql := "SELECT id,Link,Topic,Text,Date FROM news order by Link LIMIT 3;"
 	rows, err := s.pool.Query(ctx, sql)
 	if err != nil {
 		return []New{}, err

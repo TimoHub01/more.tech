@@ -1,9 +1,9 @@
 package store
 
 type New struct {
-	ID    string
-	topic string
-	text  string
-	date  string
-	link  string
+	ID    string `json:"id"`
+	Topic string `json:"Topic"`
+	Text  string `json:"Text"`
+	Date  string `json:"Date"`
+	Link  string `json:"Link"`
 }
