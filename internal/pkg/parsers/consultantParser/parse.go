@@ -30,10 +30,10 @@ func (p *Parser) postNews(ctx context.Context, date, topic, link string) {
 	}
 }
 
-func (p *Parser) Parse(ctx context.Context) {
+func (p *Parser) Parse(ctx context.Context, days int) {
 	var wg sync.WaitGroup
-	wg.Add(300)
-	for page := 0; page < 300; page++ {
+	wg.Add(days)
+	for page := 0; page < days; page++ {
 		c := colly.NewCollector()
 		c.OnHTML(".listing-news__list", func(e *colly.HTMLElement) {
 			e.ForEach(".listing-news__item", func(_ int, el *colly.HTMLElement) {
