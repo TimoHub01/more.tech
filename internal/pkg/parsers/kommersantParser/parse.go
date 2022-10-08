@@ -30,10 +30,10 @@ func (p *Parser) postNews(ctx context.Context, link, topic, date string) {
 	}
 }
 
-func (p *Parser) Parse(ctx context.Context) {
-	fmt.Println("1")
-	currentTime := time.Date(2021, 10, 7, 10, 10, 10, 10, time.Local)
-	for currentTime.Before(time.Now()) {
+func (p *Parser) Parse(ctx context.Context, days int) {
+	currentTime := time.Now()
+	currentTime = currentTime.AddDate(0, 0, -days)
+	for i := 0; i <= days; i++ {
 		c := colly.NewCollector()
 		c.OnHTML("div.grid-col", func(e *colly.HTMLElement) {
 			e.ForEach(".js-article", func(_ int, el *colly.HTMLElement) {
