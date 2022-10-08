@@ -31,12 +31,12 @@ func (p *Parser) postNews(ctx context.Context, link, topic, date string) {
 }
 
 func (p *Parser) Parse(ctx context.Context) {
-	currentTime := time.Date(2022, 10, 7, 10, 10, 10, 10, time.Local)
+	currentTime := time.Date(2021, 10, 7, 10, 10, 10, 10, time.Local)
 	for currentTime.Before(time.Now()) {
 		c := colly.NewCollector()
 		c.OnHTML(".n-default__content-wrapper", func(e *colly.HTMLElement) {
 			e.ForEach("li", func(_ int, el *colly.HTMLElement) {
-				p.postNews(ctx, el.ChildAttr("a.n-list__item__link", "href"), el.ChildText("a.n-list__item__link"), currentTime.Format("2006-1-2"))
+				go p.postNews(ctx, el.ChildAttr("a.n-list__item__link", "href"), el.ChildText("a.n-list__item__link"), currentTime.Format("2006-1-2"))
 			})
 		})
 		err := c.Visit("https://newslab.ru/news/archive/" + currentTime.Format("2006/1/2"))

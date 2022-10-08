@@ -6,6 +6,7 @@ import (
 	"github.com/gocolly/colly"
 	store2 "hack/internal/pkg/store"
 	"strconv"
+	"sync"
 )
 
 type store interface {
@@ -30,11 +31,17 @@ func (p *Parser) postNews(ctx context.Context, date, topic, link string) {
 }
 
 func (p *Parser) Parse(ctx context.Context) {
-	for page := 0; page < 10; page++ {
+	var wg sync.WaitGroup
+	wg.Add(300)
+	for page := 0; page < 300; page++ {
 		c := colly.NewCollector()
 		c.OnHTML(".listing-news__list", func(e *colly.HTMLElement) {
 			e.ForEach(".listing-news__item", func(_ int, el *colly.HTMLElement) {
-				p.postNews(ctx, el.ChildText("div[class='listing-news__item-date']"), el.ChildText("span"), el.ChildAttr("a", "href"))
+				go func() {
+					defer wg.Done()
+					p.postNews(ctx, el.ChildText("div[class='listing-news__item-date']"), el.ChildText("span"), el.ChildAttr("a", "href"))
+				}()
+
 			})
 		})
 		err := c.Visit("https://www.consultant.ru/legalnews/?page=" + strconv.Itoa(page))
@@ -42,6 +49,7 @@ func (p *Parser) Parse(ctx context.Context) {
 			fmt.Println(err)
 		}
 	}
+	wg.Wait()
 }
 
 func textFromNew(href string) string {
