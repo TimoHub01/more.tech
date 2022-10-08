@@ -28,6 +28,10 @@ func (r *Router) parseNews(c *gin.Context) {
 	}
 }
 
+func (r *Router) parseNewsFromConsultant(c *gin.Context) {
+	r.parser[1].Parse(c)
+}
+
 func (r *Router) Run() {
 	_ = r.ginContext.Run("localhost:8080")
 }

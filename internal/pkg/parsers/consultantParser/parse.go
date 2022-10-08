@@ -21,7 +21,7 @@ func NewParser(s store) *Parser {
 }
 
 func (p *Parser) postNews(ctx context.Context, date, topic, link string) {
-	link = "https://www.consultant.ru/" + link
+	link = "https://www.consultant.ru" + link
 	fmt.Println(link)
 	text := textFromNew(link)
 	n, err := p.store.CreateNew(ctx, topic, date, link, text)
@@ -32,11 +32,11 @@ func (p *Parser) postNews(ctx context.Context, date, topic, link string) {
 }
 
 func (p *Parser) Parse(ctx context.Context) {
-	fmt.Println("hi")
+	fmt.Println(1)
 	for page := 0; page < 940; page++ {
 		c := colly.NewCollector()
 		c.OnHTML(".listing-news__list", func(e *colly.HTMLElement) {
-			e.ForEach("div[data-published-at]", func(_ int, el *colly.HTMLElement) {
+			e.ForEach(".listing-news__item", func(_ int, el *colly.HTMLElement) {
 				fmt.Println(1, e)
 				p.postNews(ctx, el.ChildText("div[class='listing-news__item-date']"), el.ChildText("span"), el.ChildAttr("a", "href"))
 			})

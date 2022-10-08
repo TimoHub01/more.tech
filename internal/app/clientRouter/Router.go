@@ -20,7 +20,7 @@ func NewRouter(s store) *Router {
 }
 
 func (r *Router) SetUpRouter(engine *gin.Engine) {
-	engine.POST("/get", r.GetNews)
+	engine.GET("/get", r.GetNews)
 }
 
 func (r *Router) GetNews(c *gin.Context) {

@@ -26,5 +26,6 @@ func main() {
 	Prouter := parserRouter.NewRouter(lParser, cParser)
 	CRouter := clientRouter.NewRouter(store)
 	router := app.NewRouter(Prouter, CRouter)
+	router.SetUpRouter()
 	router.Run()
 }
