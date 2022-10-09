@@ -9,7 +9,8 @@ import (
 )
 
 type store interface {
-	GetNews(ctx context.Context) ([]Nstore.New, error)
+	GetNews(ctx context.Context, param int) ([]Nstore.New, error)
+	GetTrends(ctx context.Context) ([]Nstore.Trend, error)
 }
 
 type Router struct {
@@ -23,15 +24,28 @@ func NewRouter(s store) *Router {
 
 func (r *Router) SetUpRouter(engine *gin.Engine) {
 	engine.GET("/get", r.GetNews)
+	engine.GET("/trends", r.GetTrends)
 }
 
 func (r *Router) GetNews(c *gin.Context) {
-	news, err := r.store.GetNews(c)
+	var param int
+	if err := c.BindJSON(&param); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	news, err := r.store.GetNews(c, param)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(news)
 	c.IndentedJSON(http.StatusOK, news)
+}
+
+func (r *Router) GetTrends(c *gin.Context) {
+	trends, err := r.store.GetTrends(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+	c.IndentedJSON(http.StatusOK, trends)
 }
 
 func (r *Router) Run() {

@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS news (
     link TEXT NOT NULL,
     topic TEXT NOT NULL,
     text TEXT NOT NULL,
+    src TEXT NOT NULL,
     date TEXT NOT NULL
 );
