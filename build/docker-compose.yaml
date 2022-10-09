@@ -9,3 +9,10 @@ services:
     environment:
       POSTGRES_PASSWORD: more-tech
       POSTGRES_USER: admin
+
+#id
+#date
+#message
+#views
+#forwards
+#title
